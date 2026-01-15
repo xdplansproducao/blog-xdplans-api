@@ -9,6 +9,7 @@
 const Post = require('../models/Post');
 const { generateSlug } = require('../utils/slug');
 const { AppError } = require('../middlewares/errorHandler');
+const { uploadImage, cleanupLocalFile } = require('../services/cloudinaryService');
 
 const getPosts = async (req, res, next) => {
   try {
@@ -219,10 +220,53 @@ const deletePost = async (req, res, next) => {
   }
 };
 
+const uploadPostCover = async (req, res, next) => {
+  try {
+    // Verifica se o arquivo foi enviado
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Nenhuma imagem enviada',
+      });
+    }
+
+    // Faz upload para o Cloudinary
+    const imageData = await uploadImage(req.file.path, {
+      folder: 'blog/covers',
+    });
+
+    // Remove arquivo temporário
+    cleanupLocalFile(req.file.path);
+
+    res.status(201).json({
+      success: true,
+      data: imageData,
+      message: 'Upload realizado com sucesso',
+    });
+  } catch (error) {
+    // Remove arquivo temporário em caso de erro
+    if (req.file && req.file.path) {
+      cleanupLocalFile(req.file.path);
+    }
+
+    console.error('Erro no upload de imagem:', error);
+    
+    if (error.message.includes('Falha no upload da imagem')) {
+      return res.status(502).json({
+        success: false,
+        message: 'Erro no serviço de upload. Tente novamente.',
+      });
+    }
+
+    next(error);
+  }
+};
+
 module.exports = {
   getPosts,
   getPostBySlug,
   createPost,
   updatePost,
   deletePost,
+  uploadPostCover,
 };

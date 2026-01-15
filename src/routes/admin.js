@@ -12,10 +12,19 @@ const { authenticate } = require('../middlewares/auth');
 const postController = require('../controllers/postController');
 const { validateCreatePost, validateUpdatePost } = require('../validators/post');
 const { seedBlog } = require('../services/seed');
+const { uploadSingleCover, handleMulterError } = require('../middlewares/upload');
 
 router.post('/posts', authenticate, validateCreatePost, postController.createPost);
 router.put('/posts/:id', authenticate, validateUpdatePost, postController.updatePost);
 router.delete('/posts/:id', authenticate, postController.deletePost);
+
+// Upload de imagem de capa para posts
+router.post('/uploads/blog/cover', 
+  authenticate, 
+  uploadSingleCover, 
+  handleMulterError, 
+  postController.uploadPostCover
+);
 
 router.post('/seed', authenticate, async (req, res, next) => {
   try {

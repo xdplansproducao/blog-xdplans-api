@@ -21,6 +21,8 @@ A XD Plans é especializada em criação de sites, lojas virtuais e aplicativos 
 - **Helmet** - Segurança HTTP
 - **CORS** - Cross-Origin Resource Sharing
 - **express-rate-limit** - Rate limiting
+- **Cloudinary** - Upload de imagens
+- **Multer** - Processamento de arquivos
 
 ## 📁 Estrutura do Projeto
 
@@ -510,6 +512,71 @@ curl -X POST http://localhost:3000/admin/posts \
     "status": "published"
   }'
 ```
+
+## 🖼️ Upload de Imagens (Cloudinary)
+
+A API permite upload de imagens de capa para posts através do Cloudinary. O upload é seguro e não expõe credenciais do Cloudinary para o cliente.
+
+### Configuração
+
+Adicione as seguintes variáveis de ambiente ao seu `.env`:
+
+```env
+# Cloudinary - Upload de Imagens
+CLOUDINARY_CLOUD_NAME=seu-cloud-name
+CLOUDINARY_API_KEY=sua-api-key
+CLOUDINARY_API_SECRET=seu-api-secret
+```
+
+### Endpoint
+
+**POST** `/admin/uploads/blog/cover`
+
+- **Autenticação:** Requer token JWT de admin
+- **Content-Type:** `multipart/form-data`
+- **Campo:** `image` (arquivo)
+- **Formatos aceitos:** JPG, JPEG, PNG, WEBP
+- **Tamanho máximo:** 5MB
+
+### Exemplo de Uso
+
+```bash
+# Upload de imagem
+curl -X POST http://localhost:3000/admin/uploads/blog/cover \
+  -H "Authorization: Bearer <token>" \
+  -F "image=@./minha-imagem.jpg"
+```
+
+### Resposta de Sucesso
+
+```json
+{
+  "success": true,
+  "data": {
+    "url": "https://res.cloudinary.com/cloud-name/image/upload/v1234567890/blog/covers/abc123.jpg",
+    "publicId": "blog/covers/abc123",
+    "width": 1920,
+    "height": 1080,
+    "format": "jpg",
+    "bytes": 245760
+  },
+  "message": "Upload realizado com sucesso"
+}
+```
+
+### Fluxo Recomendado
+
+1. **Upload:** Envie a imagem para `/admin/uploads/blog/cover`
+2. **Obtenha URL:** Use a `url` retornada na resposta
+3. **Crie/Edite Post:** Inclua a URL no campo `coverImage` do post
+
+### Segurança
+
+- ✅ API Secret do Cloudinary NUNCA é exposta
+- ✅ Apenas admins autenticados podem fazer upload
+- ✅ Validação de tipo e tamanho de arquivo
+- ✅ Limpeza automática de arquivos temporários
+- ✅ URLs seguras (HTTPS) retornadas
 
 ## 📝 Scripts Disponíveis
 
