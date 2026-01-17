@@ -14,6 +14,10 @@ const { CORS_ORIGIN, NODE_ENV } = require('./config/env');
 
 const app = express();
 
+// Trust proxy - Necessário quando rodando atrás de um proxy reverso (Render, Heroku, etc)
+// Isso permite que o Express leia o IP real do cliente do header X-Forwarded-For
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet());
 
