@@ -9,7 +9,7 @@
 const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
-const { errorHandler, notFound } = require('./middlewares/errorHandler');
+const { errorHandler, notFound, requestLogger } = require('./middlewares/errorHandler');
 const { CORS_ORIGIN, NODE_ENV } = require('./config/env');
 
 const app = express();
@@ -17,6 +17,9 @@ const app = express();
 // Trust proxy - Necessário quando rodando atrás de um proxy reverso (Render, Heroku, etc)
 // Isso permite que o Express leia o IP real do cliente do header X-Forwarded-For
 app.set('trust proxy', 1);
+
+// Request Logger - Deve vir primeiro para logar tudo
+app.use(requestLogger);
 
 // Security headers
 app.use(helmet());
