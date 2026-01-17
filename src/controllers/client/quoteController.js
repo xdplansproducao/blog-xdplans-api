@@ -23,3 +23,20 @@ exports.getQuote = async (req, res) => {
     return sendError(res, 400, err.message);
   }
 };
+
+exports.createQuote = async (req, res) => {
+  try {
+    const { clientQuoteCreateSchema } = require('../../validators/client');
+    const data = clientQuoteCreateSchema.parse(req.body);
+    
+    const quote = await Quote.create({
+      ...data,
+      clientId: req.user.id,
+      status: 'pending'
+    });
+    
+    return sendResponse(res, quote, 'Solicitação de orçamento criada com sucesso', 201);
+  } catch (err) {
+    return sendError(res, 400, err.message);
+  }
+};

@@ -26,3 +26,11 @@ exports.ticketCreateSchema = z.object({
 exports.ticketMessageSchema = z.object({
   message: z.string().min(1)
 });
+
+exports.clientQuoteCreateSchema = z.object({
+  title: z.string().min(3).max(200),
+  scope: z.string().min(10).optional(),
+  priceCents: z.number().int().positive(),
+  validUntil: z.string().datetime().optional(),
+  tags: z.array(z.string()).optional()
+});

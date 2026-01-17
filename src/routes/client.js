@@ -16,6 +16,7 @@ router.get('/me', authClient, meController.getMe);
 router.patch('/me', authClient, meController.updateMe);
 
 // Quotes
+router.post('/quotes', authClient, quoteController.createQuote);
 router.get('/quotes', authClient, quoteController.listQuotes);
 router.get('/quotes/:id', authClient, quoteController.getQuote);
 

@@ -605,6 +605,7 @@ O Portal do Cliente permite que leads/clientes acessem um painel seguro para:
 - `GET /client/me`
 - `PATCH /client/me` {name,phone,company,document}
 - `POST /client/auth/change-password` {currentPassword,newPassword}
+- `POST /client/quotes` {title,scope?,priceCents,validUntil?,tags?}
 - `GET /client/quotes`
 - `GET /client/quotes/:id`
 - `GET /client/projects/active`
@@ -688,6 +689,23 @@ curl -X PATCH http://localhost:3000/admin/quotes/<ID_QUOTE>/status \
 # Validar projeto criado
 curl -X GET "http://localhost:3000/admin/projects?clientId=<ID_CLIENTE>" \
   -H 'Authorization: Bearer <TOKEN_ADMIN>'
+```
+
+#### Cliente: solicitar orçamento e visualizar
+```bash
+# Cliente solicita um orçamento
+curl -X POST http://localhost:3000/client/quotes \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>' \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Site novo com e-commerce","scope":"Design e desenvolvimento de site com integração de pagamentos","priceCents":250000,"validUntil":"2026-02-17T23:59:59Z","tags":["site","ecommerce"]}'
+
+# Cliente lista seus orçamentos
+curl -X GET http://localhost:3000/client/quotes \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>'
+
+# Cliente vê detalhes do orçamento
+curl -X GET http://localhost:3000/client/quotes/<ID_QUOTE> \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>'
 ```
 
 ### Arquivos criados/alterados
