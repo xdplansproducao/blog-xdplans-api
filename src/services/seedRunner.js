@@ -11,6 +11,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const { seedBlog } = require('./seed');
+const { seedClients } = require('./seedClients');
 const { MONGODB_URI } = require('../config/env');
 
 const runSeed = async () => {
@@ -22,6 +23,7 @@ const runSeed = async () => {
     });
 
     await seedBlog();
+    await seedClients();
 
     console.log('✅ Seed concluído com sucesso!');
     process.exit(0);

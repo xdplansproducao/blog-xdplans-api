@@ -39,4 +39,19 @@ const notFound = (req, res) => {
   });
 };
 
-module.exports = { AppError, errorHandler, notFound };
+const sendError = (res, statusCode, message) => {
+  res.status(statusCode).json({
+    success: false,
+    message,
+  });
+};
+
+const sendResponse = (res, data = null, message = 'Sucesso') => {
+  res.status(200).json({
+    success: true,
+    message,
+    data,
+  });
+};
+
+module.exports = { AppError, errorHandler, notFound, sendError, sendResponse };
