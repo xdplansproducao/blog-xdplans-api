@@ -578,38 +578,138 @@ curl -X POST http://localhost:3000/admin/uploads/blog/cover \
 - ✅ Limpeza automática de arquivos temporários
 - ✅ URLs seguras (HTTPS) retornadas
 
-## 📝 Scripts Disponíveis
+## 🧑‍💼 Portal do Cliente
 
-- `npm run dev` - Inicia servidor em modo desenvolvimento (nodemon)
-- `npm start` - Inicia servidor em produção
-- `npm run seed` - Executa seed de posts (via script)
+O Portal do Cliente permite que leads/clientes acessem um painel seguro para:
+- Editar seus dados
+- Visualizar orçamentos (quotes) associados
+- Visualizar projeto ativo (se houver orçamento pago)
+- Abrir tickets de suporte e trocar mensagens
 
-## 🔒 Segurança
+### Modelos principais
+- **Client**: cadastro do cliente (login por e-mail/senha, JWT, bcrypt)
+- **Quote**: orçamentos vinculados ao cliente
+- **Project**: projeto ativo, criado automaticamente ao pagar um orçamento
+- **Ticket**: chamados de suporte
+- **TicketMessage**: mensagens de cada ticket
 
-- **Helmet** - Headers de segurança HTTP
-- **CORS** - Configurável por ambiente
-- **JWT** - Autenticação stateless
-- **bcrypt** - Hash de senhas
-- **Rate Limiting** - Proteção contra brute force no login
-- **Validação** - Zod para validação de dados
-- **Error Handling** - Tratamento centralizado de erros
+### Segurança
+- Autenticação JWT (role=client) e bcrypt
+- Rate limit no login (5 tentativas/15min)
+- Nunca retorna passwordHash ou token em logs
+- Validação de dados com Zod
 
-## 📚 Recursos Adicionais
+### Endpoints do Cliente
 
-- **MongoDB Atlas:** [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-- **Render:** [https://render.com](https://render.com)
-- **Express:** [https://expressjs.com](https://expressjs.com)
-- **Mongoose:** [https://mongoosejs.com](https://mongoosejs.com)
+- `POST /client/auth/login` {email,password}
+- `GET /client/me`
+- `PATCH /client/me` {name,phone,company,document}
+- `POST /client/auth/change-password` {currentPassword,newPassword}
+- `GET /client/quotes`
+- `GET /client/quotes/:id`
+- `GET /client/projects/active`
+- `POST /client/tickets` {subject,message,priority}
+- `GET /client/tickets`
+- `GET /client/tickets/:id`
+- `POST /client/tickets/:id/messages` {message}
+- `PATCH /client/tickets/:id/close`
 
-## 📄 Licença
+### Endpoints Admin (Portal do Cliente)
 
-ISC
+- `POST /admin/clients` {name,email,phone,company,document,status,temporaryPassword?}
+- `GET /admin/clients`
+- `GET /admin/clients/:id`
+- `PATCH /admin/clients/:id`
+- `POST /admin/quotes` {clientId,title,scope,priceCents,status,validUntil,tags?}
+- `PATCH /admin/quotes/:id/status` {status}
+- `GET /admin/quotes?clientId=`
+- `GET /admin/projects?clientId=`
+- `PATCH /admin/projects/:id` {status,phase,notes,dueAt}
+- `GET /admin/tickets?status=`
+- `PATCH /admin/tickets/:id/status` {status}
+- `POST /admin/tickets/:id/messages` {message} (authorType=admin)
 
-## 👤 Autor
+### Exemplos de uso (cURL)
 
-**David Xavier**  
-Desenvolvedor Backend - XD Plans
+#### Login do cliente
+```bash
+curl -X POST http://localhost:3000/client/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"cliente@teste.com","password":"senha123"}'
+```
 
----
+#### Obter dados do cliente
+```bash
+curl -X GET http://localhost:3000/client/me \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>'
+```
 
-**XD Plans** - Sites, Lojas Virtuais e Apps
+#### Listar orçamentos do cliente
+```bash
+curl -X GET http://localhost:3000/client/quotes \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>'
+```
+
+#### Abrir ticket e responder
+```bash
+# Abrir ticket
+curl -X POST http://localhost:3000/client/tickets \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>' \
+  -H 'Content-Type: application/json' \
+  -d '{"subject":"Dúvida sobre projeto","message":"Como está o andamento?","priority":"medium"}'
+
+# Responder ticket
+curl -X POST http://localhost:3000/client/tickets/<ID_TICKET>/messages \
+  -H 'Authorization: Bearer <TOKEN_CLIENTE>' \
+  -H 'Content-Type: application/json' \
+  -d '{"message":"Obrigado pelo retorno!"}'
+```
+
+#### Admin: criar client, quote, marcar como pago e validar projeto
+```bash
+# Criar client
+curl -X POST http://localhost:3000/admin/clients \
+  -H 'Authorization: Bearer <TOKEN_ADMIN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Cliente Teste","email":"cliente@teste.com","status":"active","temporaryPassword":"senha123"}'
+
+# Criar quote
+curl -X POST http://localhost:3000/admin/quotes \
+  -H 'Authorization: Bearer <TOKEN_ADMIN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"clientId":"<ID_CLIENTE>","title":"Site novo","scope":"Escopo detalhado","priceCents":150000,"status":"pending"}'
+
+# Marcar quote como pago
+curl -X PATCH http://localhost:3000/admin/quotes/<ID_QUOTE>/status \
+  -H 'Authorization: Bearer <TOKEN_ADMIN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"status":"paid"}'
+
+# Validar projeto criado
+curl -X GET "http://localhost:3000/admin/projects?clientId=<ID_CLIENTE>" \
+  -H 'Authorization: Bearer <TOKEN_ADMIN>'
+```
+
+### Arquivos criados/alterados
+- src/models/Client.js
+- src/models/Quote.js
+- src/models/Project.js
+- src/models/Ticket.js
+- src/models/TicketMessage.js
+- src/controllers/client/authController.js
+- src/controllers/client/meController.js
+- src/controllers/client/quoteController.js
+- src/controllers/client/projectController.js
+- src/controllers/client/ticketController.js
+- src/controllers/admin/clientController.js
+- src/controllers/admin/quoteController.js
+- src/controllers/admin/projectController.js
+- src/controllers/admin/ticketController.js
+- src/validators/client.js
+- src/validators/admin.js
+- src/middlewares/authClient.js
+- src/middlewares/rateLimit.js
+- src/routes/client.js
+- src/routes/admin.js
+- src/app.js (adicionada rota /client)
+```

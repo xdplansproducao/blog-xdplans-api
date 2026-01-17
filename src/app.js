@@ -34,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/', require('./routes/public'));
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
+app.use('/client', require('./routes/client'));
 
 // Error handling
 app.use(notFound);
