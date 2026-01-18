@@ -127,6 +127,10 @@ const requestLogger = (req, res, next) => {
     // Não logar senhas ou tokens
     const bodyLog = JSON.parse(JSON.stringify(req.body));
     if (bodyLog.password) bodyLog.password = '***PROTEGIDO***';
+    if (bodyLog.confirmPassword) bodyLog.confirmPassword = '***PROTEGIDO***';
+    if (bodyLog.passwordConfirmation) bodyLog.passwordConfirmation = '***PROTEGIDO***';
+    if (bodyLog.senha) bodyLog.senha = '***PROTEGIDO***';
+    if (bodyLog.confirmarSenha) bodyLog.confirmarSenha = '***PROTEGIDO***';
     if (bodyLog.token) bodyLog.token = '***PROTEGIDO***';
     if (bodyLog.jwt) bodyLog.jwt = '***PROTEGIDO***';
     if (bodyLog.currentPassword) bodyLog.currentPassword = '***PROTEGIDO***';

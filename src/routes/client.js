@@ -8,6 +8,7 @@ const projectController = require('../controllers/client/projectController');
 const ticketController = require('../controllers/client/ticketController');
 
 // Auth
+router.post('/auth/register', authController.register);
 router.post('/auth/login', authController.login);
 router.post('/auth/change-password', authClient, authController.changePassword);
 

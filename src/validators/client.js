@@ -5,6 +5,24 @@ exports.clientLoginSchema = z.object({
   password: z.string().min(6)
 });
 
+exports.clientRegisterSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(6),
+  confirmPassword: z.string().min(6),
+  phone: z.string().optional(),
+  company: z.string().optional(),
+  document: z.string().optional()
+}).superRefine(({ password, confirmPassword }, ctx) => {
+  if (password !== confirmPassword) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['confirmPassword'],
+      message: 'As senhas n\u00e3o conferem'
+    });
+  }
+});
+
 exports.clientUpdateSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().optional(),

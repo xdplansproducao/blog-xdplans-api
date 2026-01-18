@@ -89,6 +89,9 @@ xdblogapi/
    ```env
    MONGODB_URI=mongodb://localhost:27017/xdblog
    JWT_SECRET=seu-jwt-secret-super-seguro-aqui
+   # Opcional (Portal do Cliente). Se não informado, usa JWT_SECRET.
+   JWT_CLIENT_SECRET=seu-jwt-secret-do-cliente-aqui
+   JWT_CLIENT_EXPIRES=7d
    ADMIN_EMAIL=admin@xdplans.com
    ADMIN_PASSWORD=admin123
    PORT=3000
@@ -382,6 +385,9 @@ curl -X POST http://localhost:3000/admin/seed \
    ```
    MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/xdblog?retryWrites=true&w=majority
    JWT_SECRET=seu-jwt-secret-super-seguro-aqui-aleatorio
+   # Opcional (Portal do Cliente). Se não informado, usa JWT_SECRET.
+   JWT_CLIENT_SECRET=seu-jwt-secret-do-cliente-aqui
+   JWT_CLIENT_EXPIRES=7d
    ADMIN_EMAIL=admin@xdplans.com
    ADMIN_PASSWORD=sua-senha-segura-aqui
    NODE_ENV=production
@@ -601,6 +607,7 @@ O Portal do Cliente permite que leads/clientes acessem um painel seguro para:
 
 ### Endpoints do Cliente
 
+- `POST /client/auth/register` {name,email,password,confirmPassword,phone?,company?,document?}
 - `POST /client/auth/login` {email,password}
 - `GET /client/me`
 - `PATCH /client/me` {name,phone,company,document}
@@ -631,6 +638,13 @@ O Portal do Cliente permite que leads/clientes acessem um painel seguro para:
 - `POST /admin/tickets/:id/messages` {message} (authorType=admin)
 
 ### Exemplos de uso (cURL)
+
+#### Cadastro do cliente (self-service)
+```bash
+curl -X POST http://localhost:3000/client/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Cliente Teste","email":"cliente@teste.com","password":"senha123","confirmPassword":"senha123","phone":"(11) 99999-9999","company":"Minha empresa","document":"000.000.000-00"}'
+```
 
 #### Login do cliente
 ```bash
